@@ -77,17 +77,36 @@ router.delete("/:id", async (req, res) => {
       .from(books)
       .where(eq(books.id, +req.params.id));
 
-      if(!entry)
-      {
-        return res.status(404).json({
-            message: "book bot found",
-        })
-      }
+    if (!entry) {
+      return res.status(404).json({
+        message: "book bot found",
+      });
+    }
 
-      await db.delete(books).where(eq(books.id, +req.params.id));
+    await db.delete(books).where(eq(books.id, +req.params.id));
+
+    return res.status(200).json({
+      message: "book deleted successfully",
+    });
+  } catch (err) {
+    return renderErrorHandler(err, res);
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const [entry] = await db
+      .select()
+      .from(books)
+      .where(eq(books.id, +req.params.id));
+    const { title, author, year } = req.body;
+    await db
+      .update(books)
+      .set({ title: title, author: author, year: year })
+      .where(eq(books.id, +req.params.id));
 
       return res.status(200).json({
-        message: "book deleted successfully",
+        message: "book updateed successfully",
       });
   } catch (err) {
     return renderErrorHandler(err, res);
