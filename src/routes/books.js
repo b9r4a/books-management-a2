@@ -24,58 +24,74 @@ router.get("/:id", async (req, res) => {
       .from(books)
       .where(eq(books.id, +req.params.id));
 
-      if(!entry)
-      {
-        return res.status(404).json({
-            message: "book not found",
-        });
-      }
+    if (!entry) {
+      return res.status(404).json({
+        message: "book not found",
+      });
+    }
 
-      return res.status(200).json(entry)
+    return res.status(200).json(entry);
   } catch (err) {
     return renderErrorHandler(err, res);
   }
 });
 
-router.post("/",async (req,res) =>{
-    try{
-            const{title,author,year} = req.body;
+router.post("/", async (req, res) => {
+  try {
+    const { title, author, year } = req.body;
 
-            if(!title)
-            {
-                return res.status(404).json({
-                    message: "the tite is required!",
-                });
-            }
-            if(!author)
-            {
-                 return res.status(404).json({
-                    message: "the author is required!",
-                });
-            }
-            if(!year || year > new Date().getFullYear())
-            {
-                 return res.status(404).json({
-                    message: "the year is required!",
-                });
-            }
-
-            await db.insert(books).values({
-                title: title,
-                author:author,
-                year:year,
-            })
-
-            return res.status(200).json({
-                message: "book creted succesfully!",
-            })
-            
+    if (!title) {
+      return res.status(404).json({
+        message: "the tite is required!",
+      });
+    }
+    if (!author) {
+      return res.status(404).json({
+        message: "the author is required!",
+      });
+    }
+    if (!year || year > new Date().getFullYear()) {
+      return res.status(404).json({
+        message: "the year is required!",
+      });
     }
 
-    catch(err)
-    {
-        return renderErrorHandler(err,res)
-    }
-})
+    await db.insert(books).values({
+      title: title,
+      author: author,
+      year: year,
+    });
+
+    return res.status(200).json({
+      message: "book creted succesfully!",
+    });
+  } catch (err) {
+    return renderErrorHandler(err, res);
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const [entry] = await db
+      .select()
+      .from(books)
+      .where(eq(books.id, +req.params.id));
+
+      if(!entry)
+      {
+        return res.status(404).json({
+            message: "book bot found",
+        })
+      }
+
+      await db.delete(books).where(eq(books.id, +req.params.id));
+
+      return res.status(200).json({
+        message: "book deleted successfully",
+      });
+  } catch (err) {
+    return renderErrorHandler(err, res);
+  }
+});
 
 module.exports = router;
